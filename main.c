@@ -119,8 +119,7 @@ void load_config() {
 	} // config lines
 }
 
-void load_symbols()
-{
+void load_symbols() {
 	int comment, sym_not_found;
 	char buf[256], sym[256];
 	unsigned short address;
@@ -190,8 +189,8 @@ int main(int argc, char **argv) {
 
 	for (ent = context.symbols; ent; ent = ent->next) {
 		fputc(0xC3, context.rom);
-		fputc(ent->address >> 8, context.rom);
 		fputc(ent->address & 0xff, context.rom);
+		fputc(ent->address >> 8, context.rom);
 		fseek(context.rom, -6, SEEK_CUR);
 		printf(".equ %s 0x%.2hX%.2hX\n", ent->symbol, index++, context.page);
 	}
