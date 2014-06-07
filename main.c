@@ -73,8 +73,7 @@ void parse_context(int argc, char **argv) {
 	}
 }
 
-void load_config()
-{
+void load_config() {
 	int comment;
 	char buf[256];
 	char *pbuf;
@@ -96,11 +95,11 @@ void load_config()
 				if(!comment && pbuf == buf) continue; // empty line
 				else break;
 			}
-			if(!comment) {
+			if (!comment) {
 				*pbuf++ = (char)toupper(c);
 			}
 		} // parse line
-		if(comment) {
+		if (comment) {
 			continue;
 		}
 		*pbuf = '\0';
@@ -111,10 +110,9 @@ void load_config()
 		ent->found = 0;
 		ent->next = NULL;
 
-		if(prev == NULL) {
+		if (prev == NULL) {
 			context.symbols = ent;
-		}
-		else {
+		} else {
 			prev->next = ent;
 		}
 		prev = ent;
