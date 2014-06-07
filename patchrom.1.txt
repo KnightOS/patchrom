@@ -1,0 +1,38 @@
+/////
+vim:set ts=4 sw=4 tw=82 noet:
+/////
+patchrom (1)
+==========
+
+Name
+----
+patchrom - Patch jump table into a ROM dump
+
+Synopsis
+--------
+'patchrom' _CONFIG_ _ROM_ _PAGE_
+
+Description
+-----------
+
+Patches a ROM file with a jump table and generates the necessary jumpt table
+index definitions.
+
+Reads the symbols for _ROM_ from stdin, keeping only those listed in _CONFIG_
+and generates a jump table in the order of the symbols in _CONFIG_. Symbol
+definition assembler code is sent to stdout. The end of the _PATH_'th page of
+_ROM_ is populated with the jump table.
+
+Examples
+--------
+
+patchrom 00.config example.rom 0x00 <00.sym >00.inc::
+	Patch example.rom with a jump table containing symbols listed in 00.config
+	and output the jump table index definitions to 00.inc
+
+Authors
+-------
+
+Maintained by Drew DeVault <sir@cmpwn.com>, who is assisted by other open
+source contributors. For more information about patchrom development, see
+<https://github.com/KnightOS/patchrom>.
