@@ -126,7 +126,7 @@ void load_symbols()
 	unsigned short address;
 	char *pbuf;
 	int c;
-	struct entry *ent, *prev = NULL;
+	struct entry *ent;
 
 	while (1) { // symbol lines
 		comment = 0;
