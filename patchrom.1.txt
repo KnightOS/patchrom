@@ -18,26 +18,70 @@ Description
 Patches a ROM file with a jump table and generates the necessary jump table
 index definitions.
 
-Reads the symbols for _ROM_ from stdin, keeping only those listed in _CONFIG_
-and generates a jump table in the order of the symbols in _CONFIG_. Symbol
-definition assembler code is sent to stdout. The end of the _PATH_'th page of
-_ROM_ is populated with the jump table.
+The symbols for _ROM_ are read from _stdin_, and those listed in the _CONFIG_ file
+are used to generate a jump table. the generated jump table is written to the end
+of _PAGE_ in the ROM file, and an include file for use in assemblers is written to
+stdout.
 
-Each entry in the jump table is 3 octets long and consists of the opcode for
-the JP instruction and the target address: 0xC3XXXX. The table grows backwards
-from the end of the page.
+Symbol Format
+-------------
 
-The output sent to stdout consists of lines of assembler code assigning names
-to the indicies for the jump table: .equ METHOD 0xIIPP. _II_ represents the
-index and _PP_ the page for _METHOD_.
+The symbols must be in a rather basic format, namely the format supported by the
+sass assembler. It looks like this:
 
+	.equ sym1 0x8
+	.equ sym2 0x10
+	.equ sym3 0x77
+	.equ sym4 0x7A
 
+Comments are supported by a single line starting with ; and extending to the end
+of the line.
+
+ROM Patch Format
+----------------
+
+The ROM file is patched with a jump table at the end of the specified page. The
+first entry in the config file is written to the end of the page. The table
+consists of the z80 JP instruction repeated for each symbol. For the symbol file
+above, that would look something like this:
+
+	C3 7A 00
+	C3 77 00
+	C3 10 00
+	C3 08 00 # This is the end of the Flash page
+
+Generated Include Format
+------------------------
+
+An include file will be written to stdout. Each exported symbol will have one
+entry in the include file, taking the form of:
+
+	.equ symbol_name 0xIIPP
+
+Where _II_ is the __I__ndex of the function (where 0 is the end of the page), and
+_PP_ is the Flash __P__age it appears on.
+
+Config File Format
+------------------
+
+The config file provided must simply be a list of symbols to export. It supports
+arbituary whitespace at the start of each line and you may include comments
+starting with # and extending to the end of the line. An example may look like
+this:
+
+	# This is a comment
+		sym1
+		sym2
+		sym3
+		sym4
+
+Empty lines are ignored.
 
 Examples
 --------
 
-patchrom 00.config example.rom 0x00 <00.sym >00.inc::
-	Patch example.rom with a jump table containing symbols listed in 00.config
+patchrom 00.config example.rom 0x00 < 00.sym > 00.inc::
+	Patches example.rom with a jump table containing symbols listed in 00.config
 	and output the jump table index definitions to 00.inc
 
 Authors
