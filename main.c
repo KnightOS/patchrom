@@ -9,7 +9,7 @@
 struct entry {
 	char *symbol;
 	unsigned short address;
-    int found;
+	int found;
 	struct entry *next;
 };
 
@@ -61,12 +61,12 @@ void parse_context(int argc, char **argv) {
 		fprintf(stderr, "Unable to open %s\n", argv[1]);
 		exit(1);
 	}
-    context.rom = fopen(argv[2], "r+");
+	context.rom = fopen(argv[2], "r+");
 	if (context.rom == NULL) {
 		fprintf(stderr, "Unable to open %s\n", argv[2]);
 		exit(1);
 	}
-    if (sscanf(argv[3], "0x%hhX", &context.page) != 1 &&
+	if (sscanf(argv[3], "0x%hhX", &context.page) != 1 &&
 		sscanf(argv[3], "%hhu", &context.page) != 1) {
 		fprintf(stderr, errorMessage);
 		exit(1);
@@ -86,19 +86,19 @@ void load_config()
 		pbuf = buf;
 		while(pbuf < buf+255) { // parse line
 			c = fgetc(context.config);
-            if (c == EOF) return;
-            if (c == '#') {
-                comment = 1;
-                continue;
-            }
-            if (c == ' ' || c == '\t' || c == '\r') continue;
-            if (c == '\n') {
-                if(!comment && pbuf == buf) continue; // empty line
-                else break;
-            }
-            if(!comment) {
-                *pbuf++ = (char)toupper(c);
-            }
+			if (c == EOF) return;
+			if (c == '#') {
+				comment = 1;
+				continue;
+			}
+			if (c == ' ' || c == '\t' || c == '\r') continue;
+			if (c == '\n') {
+				if(!comment && pbuf == buf) continue; // empty line
+				else break;
+			}
+			if(!comment) {
+				*pbuf++ = (char)toupper(c);
+			}
 		} // parse line
 		if(comment) {
 			continue;
@@ -108,7 +108,7 @@ void load_config()
 		ent = malloc(sizeof(struct entry));
 		ent->symbol = malloc(strlen(buf)+1);
 		strcpy(ent->symbol, buf);
-        ent->found = 0;
+		ent->found = 0;
 		ent->next = NULL;
 
 		if(prev == NULL) {
@@ -123,80 +123,79 @@ void load_config()
 
 void load_symbols()
 {
-    int comment, sym_not_found;
-    char buf[256], sym[256];
-    unsigned short address;
-    char *pbuf;
-    int c;
-    struct entry *ent, *prev = NULL;
+	int comment, sym_not_found;
+	char buf[256], sym[256];
+	unsigned short address;
+	char *pbuf;
+	int c;
+	struct entry *ent, *prev = NULL;
 
-    while (1) { // symbol lines
-        comment = 0;
-        pbuf = buf;
-        while (pbuf < buf+255) { // parse line
-            c = fgetc(stdin);
-            if (c == EOF) goto load_symbols_end;
-            if (c == '\n') {
-                if(!comment && pbuf == buf) continue; // empty line
-                else break;
-            }
-            if (c == ';') {
-                comment = 1;
-                continue;
-            }
-            if (c == '\r') continue;
-            if(!comment) {
-                *pbuf++ = (char)c;
-            }
-        } // parse line
-        if (comment) {
-            continue;
-        }
-        *pbuf = '\0';
+	while (1) { // symbol lines
+		comment = 0;
+		pbuf = buf;
+		while (pbuf < buf+255) { // parse line
+			c = fgetc(stdin);
+			if (c == EOF) goto load_symbols_end;
+			if (c == '\n') {
+				if(!comment && pbuf == buf) continue; // empty line
+				else break;
+			}
+			if (c == ';') {
+				comment = 1;
+				continue;
+			}
+			if (c == '\r') continue;
+			if(!comment) {
+				*pbuf++ = (char)c;
+			}
+		} // parse line
+		if (comment) {
+			continue;
+		}
+		*pbuf = '\0';
 
-        if (sscanf(buf, ".equ %s 0x%hX", sym, &address) != 2) {
-            fprintf(stderr, "Failed to parse symbol data line: %s\n", buf);
-            exit(1);
-        }
-        for (ent = context.symbols; ent; ent = ent->next) {
-            if (strcasecmp(ent->symbol, sym) == 0) {
-                ent->address = address;
-                ent->found = 1;
-                break;
-            }
-        }
-    } // symbol lines
-    load_symbols_end:
+		if (sscanf(buf, ".equ %s 0x%hX", sym, &address) != 2) {
+			fprintf(stderr, "Failed to parse symbol data line: %s\n", buf);
+			exit(1);
+		}
+		for (ent = context.symbols; ent; ent = ent->next) {
+			if (strcasecmp(ent->symbol, sym) == 0) {
+				ent->address = address;
+				ent->found = 1;
+				break;
+			}
+		}
+	} // symbol lines
+	load_symbols_end:
 
-    sym_not_found = 0;
-    for (ent = context.symbols; ent; ent = ent->next) {
-        if (!ent->found) {
-            fprintf(stderr, "Symbol not found: %s\n", ent->symbol);
-            sym_not_found = 1;
-        }
-    }
-    if (sym_not_found) {
-        exit(1);
-    }
+	sym_not_found = 0;
+	for (ent = context.symbols; ent; ent = ent->next) {
+		if (!ent->found) {
+			fprintf(stderr, "Symbol not found: %s\n", ent->symbol);
+			sym_not_found = 1;
+		}
+	}
+	if (sym_not_found) {
+		exit(1);
+	}
 }
 
 int main(int argc, char **argv) {
 	struct entry *ent;
-    int index = 0;
+	int index = 0;
 	parse_context(argc, argv);
 	load_config();
 	fclose(context.config);
 	load_symbols();
 
-    fseek(context.rom, (context.page+1)*PAGE_SIZE - 3, SEEK_SET);
+	fseek(context.rom, (context.page+1)*PAGE_SIZE - 3, SEEK_SET);
 
-	puts("; jump table index definitions generated by patchrom");
-    for (ent = context.symbols; ent; ent = ent->next) {
+	for (ent = context.symbols; ent; ent = ent->next) {
 		fputc(0xC3, context.rom);
 		fputc(ent->address >> 8, context.rom);
-        fputc(ent->address & 0xff, context.rom);
-        fseek(context.rom, -6, SEEK_CUR);
-        printf(".equ %s 0x%.2hX%.2hX\n", ent->symbol, index++, context.page);
+		fputc(ent->address & 0xff, context.rom);
+		fseek(context.rom, -6, SEEK_CUR);
+		printf(".equ %s 0x%.2hX%.2hX\n", ent->symbol, index++, context.page);
 	}
 
 	fclose(context.rom);
