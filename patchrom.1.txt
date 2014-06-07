@@ -15,13 +15,23 @@ Synopsis
 Description
 -----------
 
-Patches a ROM file with a jump table and generates the necessary jumpt table
+Patches a ROM file with a jump table and generates the necessary jump table
 index definitions.
 
 Reads the symbols for _ROM_ from stdin, keeping only those listed in _CONFIG_
 and generates a jump table in the order of the symbols in _CONFIG_. Symbol
 definition assembler code is sent to stdout. The end of the _PATH_'th page of
 _ROM_ is populated with the jump table.
+
+Each entry in the jump table is 3 octets long and consists of the opcode for
+the JP instruction and the target address: 0xC3XXXX. The table grows backwards
+from the end of the page.
+
+The output sent to stdout consists of lines of assembler code assigning names
+to the indicies for the jump table: .equ METHOD 0xIIPP. _II_ represents the
+index and _PP_ the page for _METHOD_.
+
+
 
 Examples
 --------
