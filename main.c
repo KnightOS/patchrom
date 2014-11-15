@@ -194,11 +194,11 @@ int main(int argc, char **argv) {
 	if (context.c_headers) {
 		printf("#ifndef __JUMPTABLE_H\n#define __JUMPTABLE_H\n\n");
 		printf("#define PCALL(ADDRESS) \\\n"
-				"\t.if ADDRESS & 0xFF \\\n"
-				"\t\trst 0x20 \\\n"
-				"\t\t.dw ADDRESS \\\n"
-				"\t.else \\\n"
-				"\t\tcall 0x4000 - (((ADDRESS >> 8) + 1) * 3) \\\n"
+				"\t.if ADDRESS & 0xFF \\ \\\n"
+				"\t\trst 0x20 \\ \\\n"
+				"\t\t.dw ADDRESS \\ \\\n"
+				"\t.else \\ \\\n"
+				"\t\tcall 0x4000 - (((ADDRESS >> 8) + 1) * 3) \\ \\\n"
 				"\t.endif\n\n");
 	}
 
