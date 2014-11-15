@@ -191,17 +191,6 @@ int main(int argc, char **argv) {
 
 	fseek(context.rom, (context.page+1)*PAGE_SIZE - 3, SEEK_SET);
 
-	if (context.c_headers) {
-		printf("#ifndef __JUMPTABLE_H\n#define __JUMPTABLE_H\n\n");
-		printf("#define PCALL(ADDRESS) \\\n"
-				"\t.if ADDRESS & 0xFF \\ \\\n"
-				"\t\trst 0x20 \\ \\\n"
-				"\t\t.dw ADDRESS \\ \\\n"
-				"\t.else \\ \\\n"
-				"\t\tcall 0x4000 - (((ADDRESS >> 8) + 1) * 3) \\ \\\n"
-				"\t.endif\n\n");
-	}
-
 	for (ent = context.symbols; ent; ent = ent->next) {
 		fputc(0xC3, context.rom);
 		fputc(ent->address & 0xff, context.rom);
@@ -212,10 +201,6 @@ int main(int argc, char **argv) {
 		} else {
 			printf(".equ %s 0x%.2hX%.2hX\n", ent->symbol, index++, context.page);
 		}
-	}
-
-	if (context.c_headers) {
-		printf("\n#endif");
 	}
 
 	fclose(context.rom);
