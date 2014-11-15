@@ -18,17 +18,18 @@ struct {
 	FILE *rom;
 	unsigned char page;
 	struct entry *symbols;
+	int c_headers;
 } context;
 
 void show_help() {
 	printf(
 		"patchrom - Patch jump table into a ROM dump\n"
 		"\n"
-		"Usage: patchrom CONFIG ROM PAGE < SYMBOLS\n"
+		"Usage: patchrom [-c] CONFIG ROM PAGE < SYMBOLS\n"
 		"See `man 1 patchrom` for details.\n"
 		"\n"
 		"Creates a jump table in PAGE of ROM and outputs index definitions as\n"
-		"configured CONFIG from symbols from stdin.\n"
+		"configured CONFIG from symbols from stdin. '-c' instructs patchrom to output a C header.\n"
 		"\n"
 		"Examples:\n"
 		"\tpatchrom 00.config example.rom 0x00 <00.sym >00.inc\n"
@@ -39,35 +40,38 @@ void show_help() {
 
 void parse_context(int argc, char **argv) {
 	const char *errorMessage = "Invalid usage - see `patchrom --help`\n";
+	context.c_headers = 0;
 	int i;
 	for (i = 1; i < argc; i++) {
 		if (*argv[i] == '-') {
 			if (strcasecmp(argv[i], "--help") == 0) {
 				show_help();
 				exit(0);
+			} else if (strcmp(argv[i], "-c") == 0) {
+				context.c_headers = 1;
 			} else {
 				fprintf(stderr, errorMessage);
 				exit(1);
 			}
 		}
 	}
-	if (argc != 4) {
+	if (argc > 5) {
 				fprintf(stderr, errorMessage);
 				exit(1);
 	}
 
-	context.config = fopen(argv[1], "r");
+	context.config = fopen(argv[1 + context.c_headers], "r");
 	if (context.config == NULL) {
-		fprintf(stderr, "Unable to open %s\n", argv[1]);
+		fprintf(stderr, "Unable to open %s\n", argv[1 + context.c_headers]);
 		exit(1);
 	}
-	context.rom = fopen(argv[2], "r+");
+	context.rom = fopen(argv[2 + context.c_headers], "r+");
 	if (context.rom == NULL) {
-		fprintf(stderr, "Unable to open %s\n", argv[2]);
+		fprintf(stderr, "Unable to open %s\n", argv[2 + context.c_headers]);
 		exit(1);
 	}
-	if (sscanf(argv[3], "0x%hhX", &context.page) != 1 &&
-		sscanf(argv[3], "%hhu", &context.page) != 1) {
+	if (sscanf(argv[3 + context.c_headers], "0x%hhX", &context.page) != 1 &&
+		sscanf(argv[3 + context.c_headers], "%hhu", &context.page) != 1) {
 		fprintf(stderr, errorMessage);
 		exit(1);
 	}
@@ -187,12 +191,31 @@ int main(int argc, char **argv) {
 
 	fseek(context.rom, (context.page+1)*PAGE_SIZE - 3, SEEK_SET);
 
+	if (context.c_headers) {
+		printf("#ifndef __JUMPTABLE_H\n#define __JUMPTABLE_H\n\n");
+		printf("#define PCALL(ADDRESS) \\\n"
+				"\t.if ADDRESS & 0xFF \\\n"
+				"\t\trst 0x20 \\\n"
+				"\t\t.dw ADDRESS \\\n"
+				"\t.else \\\n"
+				"\t\tcall 0x4000 - (((ADDRESS >> 8) + 1) * 3) \\\n"
+				"\t.endif\n\n");
+	}
+
 	for (ent = context.symbols; ent; ent = ent->next) {
 		fputc(0xC3, context.rom);
 		fputc(ent->address & 0xff, context.rom);
 		fputc(ent->address >> 8, context.rom);
 		fseek(context.rom, -6, SEEK_CUR);
-		printf(".equ %s 0x%.2hX%.2hX\n", ent->symbol, index++, context.page);
+		if (context.c_headers) {
+			printf("#define %s 0x%.2hX%.2hX\n", ent->symbol, index++, context.page);
+		} else {
+			printf(".equ %s 0x%.2hX%.2hX\n", ent->symbol, index++, context.page);
+		}
+	}
+
+	if (context.c_headers) {
+		printf("\n#endif");
 	}
 
 	fclose(context.rom);
