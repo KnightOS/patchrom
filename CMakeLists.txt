@@ -1,10 +1,10 @@
 cmake_minimum_required(VERSION 2.8.5)
+
 project(patchrom C)
-set(CMAKE_C_FLAGS "-g -Wall")
+
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall -Wextra -pedantic -Werror")                                          
 
 add_executable(patchrom main.c)
-
-install(PROGRAMS ${CMAKE_BINARY_DIR}/patchrom DESTINATION bin)
 
 if (NOT DEFINED CMAKE_BUILD_TYPE)
 	set(CMAKE_BUILD_TYPE Release CACHE STRING "Build type (Debug or Release)" FORCE)
@@ -17,4 +17,6 @@ ADD_CUSTOM_COMMAND(
   OUTPUTS ${CMAKE_BINARY_DIR}/patchrom.1
 )
 
-INSTALL(FILES ${CMAKE_BINARY_DIR}/patchrom.1 DESTINATION man/man1)
+install(TARGETS patchrom DESTINATION ${CMAKE_INSTALL_PREFIX}/bin)
+INSTALL(FILES ${CMAKE_BINARY_DIR}/patchrom.1
+    DESTINATION ${CMAKE_INSTALL_PREFIX}/share/man/man1)
