@@ -22,7 +22,7 @@ struct {
 } context;
 
 void show_help() {
-	printf(
+	puts(
 		"patchrom - Patch jump table into a ROM dump\n"
 		"\n"
 		"Usage: patchrom [-c] CONFIG ROM PAGE < SYMBOLS\n"
@@ -34,12 +34,12 @@ void show_help() {
 		"Examples:\n"
 		"\tpatchrom 00.config example.rom 0x00 <00.sym >00.inc\n"
 		"\t\tPatch example.rom with a jump table containing symbols listed in 00.config\n"
-		"\t\tand output the jump table index definitions to 00.inc\n"
+		"\t\tand output the jump table index definitions to 00.inc"
 	);
 }
 
 void parse_context(int argc, char **argv) {
-	const char *errorMessage = "Invalid usage - see `patchrom --help`\n";
+	const char *errorMessage = "Invalid usage - see `patchrom --help`";
 	context.c_headers = 0;
 	int i;
 	for (i = 1; i < argc; i++) {
@@ -50,14 +50,14 @@ void parse_context(int argc, char **argv) {
 			} else if (strcmp(argv[i], "-c") == 0) {
 				context.c_headers = 1;
 			} else {
-				fprintf(stderr, errorMessage);
+				fputs(errorMessage, stderr);
 				exit(1);
 			}
 		}
 	}
 	if (argc > 5) {
-				fprintf(stderr, errorMessage);
-				exit(1);
+		fputs(errorMessage, stderr);
+		exit(1);
 	}
 
 	context.config = fopen(argv[1 + context.c_headers], "r");
@@ -72,7 +72,7 @@ void parse_context(int argc, char **argv) {
 	}
 	if (sscanf(argv[3 + context.c_headers], "0x%hhX", &context.page) != 1 &&
 		sscanf(argv[3 + context.c_headers], "%hhu", &context.page) != 1) {
-		fprintf(stderr, errorMessage);
+		fputs(errorMessage, stderr);
 		exit(1);
 	}
 }
@@ -197,9 +197,9 @@ int main(int argc, char **argv) {
 		fputc(ent->address >> 8, context.rom);
 		fseek(context.rom, -6, SEEK_CUR);
 		if (context.c_headers) {
-			printf("#define %s 0x%.2hX%.2hX\n", ent->symbol, index++, context.page);
+			printf("#define %s 0x%.2X%.2hX\n", ent->symbol, index++, context.page);
 		} else {
-			printf(".equ %s 0x%.2hX%.2hX\n", ent->symbol, index++, context.page);
+			printf(".equ %s 0x%.2X%.2hX\n", ent->symbol, index++, context.page);
 		}
 	}
 
