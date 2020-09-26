@@ -50,13 +50,13 @@ void parse_context(int argc, char **argv) {
 			} else if (strcmp(argv[i], "-c") == 0) {
 				context.c_headers = 1;
 			} else {
-				fprintf(stderr, errorMessage);
+				fprintf(stderr, "%s", errorMessage);
 				exit(1);
 			}
 		}
 	}
 	if (argc > 5) {
-				fprintf(stderr, errorMessage);
+				fprintf(stderr, "%s", errorMessage);
 				exit(1);
 	}
 
@@ -72,7 +72,7 @@ void parse_context(int argc, char **argv) {
 	}
 	if (sscanf(argv[3 + context.c_headers], "0x%hhX", &context.page) != 1 &&
 		sscanf(argv[3 + context.c_headers], "%hhu", &context.page) != 1) {
-		fprintf(stderr, errorMessage);
+		fprintf(stderr, "%s", errorMessage);
 		exit(1);
 	}
 }
