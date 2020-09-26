@@ -1,5 +1,7 @@
 # patchrom
 
+[![builds.sr.ht status](https://builds.sr.ht/~pixelherodev/patchrom/commits/.build.yml.svg)](https://builds.sr.ht/~pixelherodev/patchrom/commits/.build.yml)
+
 Patches a ROM file with a jump table and generates the necessary jump table
 index definitions.
 
