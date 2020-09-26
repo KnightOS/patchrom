@@ -1,0 +1,16 @@
+image: archlinux
+packages:
+  - cmake
+  - asciidoc
+  - samurai
+sources:
+  - https://github.com/KnightOS/patchrom
+environment:
+  project: patchrom
+tasks:
+  - test: |
+      cd ${project}
+      mkdir build
+      cd build
+      cmake .. -GNinja
+      samu
