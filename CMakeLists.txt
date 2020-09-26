@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 2.8.5)
 
 project(patchrom C)
 
-set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall -Wextra -pedantic -Werror")                                          
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall -Wextra -pedantic")                                          
 
 add_executable(patchrom main.c)
 
