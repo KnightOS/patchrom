@@ -1,19 +1,14 @@
-/////
-vim:set ts=4 sw=4 tw=82 noet:
-/////
-patchrom (1)
-==========
+PATCHROM(1)
 
-Name
-----
+# NAME
+
 patchrom - Patch jump table into a ROM dump
 
-Synopsis
---------
-'patchrom' _CONFIG_ _ROM_ _PAGE_
+# SYNOPSIS
 
-Description
------------
+*patchrom* _CONFIG_ _ROM_ _PAGE_
+
+# DESCRIPTION
 
 Patches a ROM file with a jump table and generates the necessary jump table
 index definitions.
@@ -23,70 +18,72 @@ are used to generate a jump table. the generated jump table is written to the en
 of _PAGE_ in the ROM file, and an include file for use in assemblers is written to
 stdout.
 
-Symbol Format
--------------
+# SYMBOL FORMAT
 
 The symbols must be in a rather basic format, namely the format supported by the
 sass assembler. It looks like this:
 
-	.equ sym1 0x8
-	.equ sym2 0x10
-	.equ sym3 0x77
-	.equ sym4 0x7A
+```
+.equ sym1 0x8
+.equ sym2 0x10
+.equ sym3 0x77
+.equ sym4 0x7A
+```
 
 Comments are supported by a single line starting with ; and extending to the end
 of the line.
 
-ROM Patch Format
-----------------
+# ROM PATCH FORMAT
 
 The ROM file is patched with a jump table at the end of the specified page. The
 first entry in the config file is written to the end of the page. The table
 consists of the z80 JP instruction repeated for each symbol. For the symbol file
 above, that would look something like this:
 
-	C3 7A 00
-	C3 77 00
-	C3 10 00
-	C3 08 00 # This is the end of the Flash page
+```
+C3 7A 00
+C3 77 00
+C3 10 00
+C3 08 00 # This is the end of the Flash page
+```
 
-Generated Include Format
-------------------------
+# GENERATED INCLUDE FORMAT
 
 An include file will be written to stdout. Each exported symbol will have one
 entry in the include file, taking the form of:
 
-	.equ symbol_name 0xIIPP
+```
+.equ symbol_name 0xIIPP
+```
 
-Where _II_ is the __I__ndex of the function (where 0 is the end of the page), and
-_PP_ is the Flash __P__age it appears on.
+Where _II_ is the _Index_ of the function (where 0 is the end of the page), and
+_PP_ is the Flash _Page_ it appears on.
 
-Config File Format
-------------------
+# CONFIG FILE FORMAT
 
 The config file provided must simply be a list of symbols to export. It supports
 arbituary whitespace at the start of each line and you may include comments
 starting with # and extending to the end of the line. An example may look like
 this:
 
-	# This is a comment
-		sym1
-		sym2
-		sym3
-		sym4
+```
+# This is a comment
+	sym1
+	sym2
+	sym3
+	sym4
+```
 
 Empty lines are ignored.
 
-Examples
---------
+# EXAMPLES
 
-patchrom 00.config example.rom 0x00 < 00.sym > 00.inc::
+*patchrom 00.config example.rom 0x00 < 00.sym > 00.inc*
 	Patches example.rom with a jump table containing symbols listed in 00.config
 	and output the jump table index definitions to 00.inc
 
-Authors
--------
+# AUTHORS
 
 Maintained by Drew DeVault <sir@cmpwn.com>, who is assisted by other open
 source contributors. For more information about patchrom development, see
-<https://github.com/KnightOS/patchrom>.
+https://github.com/KnightOS/patchrom.

@@ -7,7 +7,7 @@ index definitions.
 
 ## Installation
 
-For Linux/Mac/etc, install make, asciidoc, and a C compiler,
+For Linux/Mac/etc, install make, scdoc, and a C compiler,
 then:
 
 	$ make

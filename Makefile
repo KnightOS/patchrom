@@ -6,8 +6,8 @@ bin/patchrom:main.o
 	mkdir -p bin/
 	$(CC) $(CFLAGS) $^ -o $@
 
-bin/patchrom.1:patchrom.1.txt
-	a2x --no-xmllint --doctype manpage --format manpage patchrom.1.txt -v -D bin/
+bin/patchrom.1:patchrom.1.scdoc
+	scdoc < patchrom.1.scdoc > bin/patchrom.1
 
 DESTDIR=/usr/local
 BINDIR=$(DESTDIR)/bin/
